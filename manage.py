@@ -9,9 +9,12 @@ manager = Manager(app)
 def run():
     port = int(os.environ.get('ZAMS_PORT', 8080))
     host = os.environ.get('ZAMS_HOST', '0.0.0.0')
-    app.run(host, port)
+    app.run(host=host, port=port)
 
 
 # admin commands
-    
+
+
+if __name__ == '__main__':
+    run()
         

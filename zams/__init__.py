@@ -11,3 +11,6 @@ from . import api
 #from . import login # until it's ready
 from . import views
 from . import filters
+
+from .database import Base, engine
+Base.metadata.create_all(engine)

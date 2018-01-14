@@ -1,93 +1,83 @@
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy import Column, Integer, String, Sequence, ForeignKey, DateTime
 
 from .database import Base, session
-
 # lets do a little of introspection to save us time
 # writing functions to convert as dictionaries
 import inspect
+import re
+class TableDictionaryMixin(object):
+    """
+    This Mixin ensures that all classes that derive from it contain
+    a __tablename__ of the plural version of it's name converted into snake_case
+    and id column set as a primary_key
+    and as_dictionary method to facility api design
+    """
 
-# ensure that all class/table/structures have a tablename matching
-# their name in lowercase and respective plurarlalized form
-# provide method that automatically generates a dictionary of it's attributes
-class MetaTableDictionary(type):
+    __mapper_args__ = { 'always_refresh': True }
+
+    @staticmethod
+    def camel_to_snake(name):
+        snake = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+        return re.sub('([a-z0-9])([A-Z])', r'\1_\2', snake).lower()
+
+    @declared_attr
+    def __tablename__(cls):
+        tablename = TableDictionaryMixin.camel_to_snake(cls.__name__)
+        if tablename.endswith('y'):
+            tablename = tablename[:-1] + 'ies'
+        else:
+            tablename += 's'
+        return tablename
+
+    id = Column(Integer, primary_key=True)
+
     def as_dictionary(self):
         # get all attributes
         attributes = inspect.getmembers(self, lambda attr:not(inspect.isroutine(attr)))
         # separate just the variables by name
-        tvars = [attr for attr in attributes if not(attr[0].startswith('__') and attr[0].endswith('__'))]
-        # convert the tupples into a dictionary
+        tvars = [attr for attr in attributes if not(
+            (attr[0].startswith('__') and attr[0].endswith('__'))
+            or (attr[0].startswith('_') or attr[0].endswith('_'))
+            or (attr[0].startswith('metadata')) )]
+
         dictionary = {}
         for var in tvars:
             dictionary[var[0]] = var[1]
 
         return dictionary
 
-    def __new__(cls, clsname, superclasses, attributedict):
-        attributedict['as_dictionary'] = MetaTableDictionary.as_dictionary
-        tablename = clsname.lower()
-        if clsname.endswith('y'):
-            tablename = tablename[:-1] + 'ies'
-        else:
-            tablename += 's'
-        attributedict['__tablename__'] = tablename
-        return type.__new__(cls, clsname, superclasses, attributedict)
-
-    
 # Asset related tables/structures
-class Asset(Base, metaclass=MetaTableDictionary):
-
-    id = Column(Integer, primary_key = True)
-    
+class Asset(TableDictionaryMixin, Base):
     pass
 
-class AssetCategory(Base, metaclass=MetaTableDictionary):
-
-    id = Column(Integer, primary_key = True)
-    
+class AssetCategory(TableDictionaryMixin, Base):
     pass
 
-class AssetType(Base, metaclass=MetaTableDictionary):
-
-    id = Column(Integer, primary_key = True)
+class AssetType(TableDictionaryMixin, Base):
     pass
 
-class AssetModel(Base, metaclass=MetaTableDictionary):
-
-    id = Column(Integer, primary_key = True)
+class AssetModel(TableDictionaryMixin, Base):
     pass
 
-class AssetStatus(Base, metaclass=MetaTableDictionary):
-
-    id = Column(Integer, primary_key = True)
+class AssetStatus(TableDictionaryMixin, Base):
     pass
 
-class Location(Base, metaclass=MetaTableDictionary):
-
-    id = Column(Integer, primary_key = True)
+class Location(TableDictionaryMixin, Base):
     pass
 
-class LocationCategory(Base, metaclass=MetaTableDictionary):
-
-    id = Column(Integer, primary_key = True)
+class LocationCategory(TableDictionaryMixin, Base):
     pass
 
-class Department(Base, metaclass=MetaTableDictionary):
-
-    id = Column(Integer, primary_key = True)
+class Department(TableDictionaryMixin, Base):
     pass
 
-class Supplier(Base, metaclass=MetaTableDictionary):
-
-    id = Column(Integer, primary_key = True)
+class Supplier(TableDictionaryMixin, Base):
     pass
 
-class SupplierCategory(Base, metaclass=MetaTableDictionary):
-
-    id = Column(Integer, primary_key = True)
+class SupplierCategory(TableDictionaryMixin, Base):
     pass
 
-class SystemUser(Base, metaclass=MetaTableDictionary):
-
-    id = Column(Integer, primary_key = True)
+class SystemUser(TableDictionaryMixin, Base):
     pass
 
