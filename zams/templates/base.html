@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>{% block page_title %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, intial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/frameworks/bootstrap.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme/main.css') }}" />
+    {% block header_includes %}
+    {% endblock %}
+
+    <style type="text/css">
+      {% block header_styles %}
+      {% endblock %}
+    </style>
+  </head>
+
+  <body>
+    <div id="main">
+      {% block pre_content %}
+      {% endblock %}
+      
+      {% block content %}
+      {% endblock %}
+
+      {% block post_content %}
+      {% endblock %}
+    </div>
+
+    <footer>
+      {% block footer_content %}
+      {% endblock %}
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/frameworks/jquery.3.2.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/base/app.js') }}"></script>
+    {% block footer_includes %}
+    {% endblock %}
+  </body>
+
+</html>
